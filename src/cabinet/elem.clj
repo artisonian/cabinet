@@ -17,8 +17,8 @@
     (raise :type :invalid
            :message "attrs are empty")
     (let [new-attrs (merge (@elems id) attrs)]
-     (swap! elems assoc id new-attrs)
-     new-attrs)))
+      (swap! elems assoc id new-attrs)
+      new-attrs)))
 
 (defn delete [id]
   (let [old-attrs (get id)]
