@@ -10,6 +10,11 @@
   {:invalid 400
    :not-found 404})
 
+(defn json-response [data & [status]]
+  {:status (or status 200)
+   :headers {"Content-Type" "application/json"}
+   :body (json/generate-string data)})
+
 (defn wrap-error-handling [handler]
   (fn [req]
     (try
@@ -20,11 +25,6 @@
       (catch Condition e
         (let [{:keys [type message]} (meta e)]
           (json-response {"error" message} (error-codes type)))))))
-
-(defn json-response [data & [status]]
-  {:status (or status 200)
-   :headers {"Content-Type" "application/json"}
-   :body (json/generate-string data)})
 
 (defroutes handler
   (GET "/" []
