@@ -1,14 +1,18 @@
 (ns cabinet.elem
+  (:use [hassium.core :exclude (delete)])
   (:use clojure.contrib.condition)
   (:refer-clojure :exclude (list get delete)))
 
-(def elems (atom {}))
+(def ^{:private true} db
+  (database "cabinet"))
+
+(def elems (collection db "elems"))
 
 (defn list []
-  @elems)
+  @(find-all elems))
 
 (defn get [id]
-  (or (@elems id)
+  (or (find-one elems {:elem-id id})
       (raise :type :not-found
              :message (format "elem '%s' not found" id))))
 
@@ -16,11 +20,12 @@
   (if (empty? attrs)
     (raise :type :invalid
            :message "attrs are empty")
-    (let [new-attrs (merge (@elems id) attrs)]
-      (swap! elems assoc id new-attrs)
-      new-attrs)))
+    (let [new-attrs (merge (find-one elems {:elem-id id})
+                           attrs
+                           {:elem-id id})]
+      (save elems new-attrs))))
 
 (defn delete [id]
   (let [old-attrs (get id)]
-    (swap! elems dissoc id)
+    (hassium.core/delete elems {:elem-id id})
     old-attrs))
