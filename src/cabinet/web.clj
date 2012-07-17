@@ -3,8 +3,9 @@
   (:use ring.middleware.json-params)
   (:require [clj-json.core :as json])
   (:require [cabinet.elem :as elem])
+  (:require slingshot.slingshot)
   (:import org.codehaus.jackson.JsonParseException)
-  (:import clojure.contrib.condition.Condition))
+)
 
 (def error-codes
   {:invalid 400
@@ -22,7 +23,7 @@
           (json-response {"error" "resource not found"} 404))
       (catch JsonParseException e
         (json-response {"error" "malformed json"} 400))
-      (catch Condition e
+      (catch Exception e
         (let [{:keys [type message]} (meta e)]
           (json-response {"error" message} (error-codes type)))))))
 
